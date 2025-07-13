@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: triton-server
+  namespace: pyler-mlops
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: triton
+  template:
+    metadata:
+      labels:
+        app: triton
+    spec:
+      containers:
+        - name: triton
+          image: nvcr.io/nvidia/tritonserver:24.03-py3
+          args: ["tritonserver", "--model-repository=/models"]
+          ports:
+            - containerPort: 8001  # gRPC
+          volumeMounts:
+            - name: model-base
+              mountPath: /models
+      volumes:
+        - name: model-base
+          persistentVolumeClaim:
+            claimName: triton-model-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: triton-service
+  namespace: pyler-mlops
+spec:
+  selector:
+    app: triton
+  type: NodePort
+  ports:
+    - name: grpc
+      port: 8001
+      targetPort: 8001
+      nodePort: 30001

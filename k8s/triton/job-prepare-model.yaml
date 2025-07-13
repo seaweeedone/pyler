@@ -1,0 +1,32 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: prepare-model
+  namespace: pyler-mlops
+spec:
+  template:
+    spec:
+      containers:
+        - name: prepare
+          image: busybox
+          command:
+            - sh
+            - -c
+            - |
+              mkdir -p /models/resnet/1 && \
+              mv /models/resnet/model.pt /models/resnet/1/model.pt && \
+              echo "$CONFIG_PBTXT" > /models/resnet/config.pbtxt
+          env:
+            - name: CONFIG_PBTXT
+              valueFrom:
+                configMapKeyRef:
+                  name: triton-config
+                  key: config.pbtxt
+          volumeMounts:
+            - name: model-base
+              mountPath: /models
+      restartPolicy: Never
+      volumes:
+        - name: model-base
+          persistentVolumeClaim:
+            claimName: triton-model-pvc
