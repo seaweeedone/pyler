@@ -6,9 +6,9 @@ metadata:
 spec:
   restartPolicy: Never
   containers:
-  - name: client
-    image: triton-client:pyler
-    imagePullPolicy: IfNotPresent
-    envFrom:
-      - configMapRef:
-          name: triton-client-env
+    - name: client
+      image: triton-client:pyler
+      imagePullPolicy: IfNotPresent
+      envFrom:
+        - configMapRef:
+            name: triton-client-env
