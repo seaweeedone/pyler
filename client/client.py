@@ -1,6 +1,7 @@
 import datetime
 import logging
 import os
+import sys
 import time
 
 import torch
@@ -82,6 +83,7 @@ def main():
         logger.info("Sample outputs:")
         for i in range(min(10, len(predictions))):
             print(f"[{i + 1}] → {predictions[i].argmax()} (raw: {predictions[i]})", flush=True)
+            sys.stdout.flush()
 
         logger.info("Client finished successfully.")
 
