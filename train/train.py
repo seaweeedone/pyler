@@ -1,3 +1,5 @@
+import datetime
+import logging
 import os
 
 import torch
@@ -6,6 +8,29 @@ import torch.optim as optim
 import torchvision
 import torchvision.transforms as transforms
 from torchvision.models import resnet18
+
+# Hyperparameters
+NUM_EPOCHS = 10
+BATCH_SIZE = 64
+LEARNING_RATE = 0.001
+
+
+# Set log format (KST)
+class KSTFormatter(logging.Formatter):
+    converter = lambda *args: datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=9))).timetuple()
+
+    def formatTime(self, record, datefmt=None):
+        return super().formatTime(record, datefmt)
+
+
+formatter = KSTFormatter(fmt="%(asctime)s [%(levelname)s] %(message)s")
+handler = logging.StreamHandler()
+handler.setFormatter(formatter)
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+logger.addHandler(handler)
+logger.propagate = False
 
 
 def main():
@@ -26,7 +51,7 @@ def main():
     trainset = torchvision.datasets.MNIST(
         root="./data", train=True, download=True, transform=transform
     )
-    trainloader = torch.utils.data.DataLoader(trainset, batch_size=64, shuffle=True)
+    trainloader = torch.utils.data.DataLoader(trainset, batch_size=BATCH_SIZE, shuffle=True)
 
     # Initialize ResNet-18 model
     model = resnet18(pretrained=False)
@@ -36,10 +61,14 @@ def main():
 
     # Loss and optimizer
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.parameters(), lr=0.001)
+    optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
 
     # Training loop
-    for epoch in range(10):
+    logger.info("Starting training...")
+    for epoch in range(NUM_EPOCHS):
+        running_loss = 0.0
+        log_interval = max(1, len(trainloader) // 5)  # 20% 단위, 최소 1
+
         for batch_idx, (inputs, labels) in enumerate(trainloader):
             inputs, labels = inputs.to(device), labels.to(device)
 
@@ -49,14 +78,21 @@ def main():
             loss.backward()
             optimizer.step()
 
-            print(f"[Epoch {epoch + 1}, Batch {batch_idx + 1}] Loss: {loss.item() / 100:.4f}")
+            running_loss += loss.item()
+
+            if (batch_idx + 1) % log_interval == 0:
+                avg_loss = running_loss / log_interval
+                logger.info(f"[Epoch {epoch + 1}, Batch {batch_idx + 1}] Avg Loss: {avg_loss:.4f}")
+                running_loss = 0.0
+
+    logger.info("Training completed. Exporting model...")
 
     # Switch to evaluation mode and export to TorchScript
     model.eval()
-    example_input = torch.randn(1, 1, 224, 224)
+    example_input = torch.randn(1, 1, 224, 224).to(device)
     traced = torch.jit.trace(model, example_input)
     traced.save(f"{export_dir}/model.pt")
-    print(f"Model saved to {export_dir}/model.pt")
+    logger.info(f"Model saved to {export_dir}/model.pt")
 
 
 if __name__ == "__main__":
