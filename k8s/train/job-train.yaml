@@ -1,0 +1,22 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: train-model-job
+  namespace: pyler-mlops
+spec:
+  template:
+    spec:
+      containers:
+        - name: trainer
+          image: train-model:pyler
+          env:
+            - name: EXPORT_DIR
+              value: /models/resnet
+          volumeMounts:
+            - name: model-base
+              mountPath: /models
+      restartPolicy: Never
+      volumes:
+        - name: model-base
+          persistentVolumeClaim:
+            claimName: triton-model-pvc
