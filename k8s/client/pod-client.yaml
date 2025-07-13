@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: triton-client
+  namespace: pyler-mlops
+spec:
+  restartPolicy: Never
+  containers:
+  - name: client
+    image: triton-client:pyler
+    imagePullPolicy: IfNotPresent
+    envFrom:
+      - configMapRef:
+          name: triton-client-env
