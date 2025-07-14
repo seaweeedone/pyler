@@ -9,7 +9,7 @@ if (-Not (Test-Path $settingsPath)) {
 
 . $settingsPath
 
-cd ../
+cd ../../
 Write-Log "Installing client chart..."
 $output = helm upgrade --install $releaseClient ./client -n $namespace 2>&1
 if ($LASTEXITCODE -eq 0) {

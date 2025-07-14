@@ -9,7 +9,7 @@ if (-Not (Test-Path $settingsPath)) {
 
 . $settingsPath
 
-cd ../
+cd ../../
 
 Write-Log "Waiting for train job to complete before deploying Triton..."
 kubectl wait --for=condition=complete job/$trainJobName -n $namespace --timeout=3600s
@@ -29,7 +29,7 @@ if ($LASTEXITCODE -eq 0) {
 }
 
 Write-Log "Waiting for Triton pod to be Ready..."
-kubectl wait --for=condition=ready pod -l app=triton -n $namespace --timeout=120s
+kubectl wait --for=condition=ready pod -l app=triton -n $namespace --timeout=600s
 if ($LASTEXITCODE -ne 0) {
     Write-Log "Triton pod did not become ready." "ERROR"
     Set-Location $PSScriptRoot

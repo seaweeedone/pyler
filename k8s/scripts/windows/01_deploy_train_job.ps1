@@ -9,7 +9,7 @@ if (-Not (Test-Path $settingsPath)) {
 
 . $settingsPath
 
-cd ../
+cd ../../
 
 Write-Log "Create namespace for pyler."
 kubectl create ns $namespace
