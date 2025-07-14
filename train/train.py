@@ -10,7 +10,7 @@ import torchvision.transforms as transforms
 from torchvision.models import resnet18
 
 # Hyperparameters
-NUM_EPOCHS = 10
+NUM_EPOCHS = 5
 BATCH_SIZE = 64
 LEARNING_RATE = 0.001
 
@@ -36,7 +36,7 @@ logger.propagate = False
 def main():
     # Use CPU for training
     device = torch.device("cpu")
-    print(f"Using device: {device}")
+    logger.info(f"Using device: {device}")
 
     export_dir = os.environ.get("EXPORT_DIR", "/mnt/models/resnet")
     os.makedirs(export_dir, exist_ok=True)
@@ -54,7 +54,7 @@ def main():
     trainloader = torch.utils.data.DataLoader(trainset, batch_size=BATCH_SIZE, shuffle=True)
 
     # Initialize ResNet-18 model
-    model = resnet18(pretrained=False)
+    model = resnet18(weights=None)
     model.conv1 = nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3, bias=False)
     model.fc = nn.Linear(512, 10)
     model.to(device)
@@ -66,8 +66,9 @@ def main():
     # Training loop
     logger.info("Starting training...")
     for epoch in range(NUM_EPOCHS):
+        logger.info(f"Epoch {epoch + 1} started.")
         running_loss = 0.0
-        log_interval = max(1, len(trainloader) // 5)  # 20% 단위, 최소 1
+        log_interval = max(1, len(trainloader) // 5)
 
         for batch_idx, (inputs, labels) in enumerate(trainloader):
             inputs, labels = inputs.to(device), labels.to(device)
@@ -84,6 +85,7 @@ def main():
                 avg_loss = running_loss / log_interval
                 logger.info(f"[Epoch {epoch + 1}, Batch {batch_idx + 1}] Avg Loss: {avg_loss:.4f}")
                 running_loss = 0.0
+        logger.info(f"Epoch {epoch + 1} finished.")
 
     logger.info("Training completed. Exporting model...")
 

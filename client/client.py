@@ -39,6 +39,26 @@ logger.addHandler(handler)
 logger.propagate = False
 
 
+# Create gRPC client & # Check server status
+def connect_with_retry(url, timeout_sec=300, interval_sec=3):
+    start_time = time.time()
+    while True:
+        try:
+            client = grpcclient.InferenceServerClient(url=url, verbose=False)
+            if client.is_server_live():
+                logger.info("Connected to Triton server.")
+                return client
+            else:
+                raise Exception("Triton server not live yet.")
+        except Exception as e:
+            elapsed = time.time() - start_time
+            if elapsed >= timeout_sec:
+                logger.error(f"Connection timed out after {timeout_sec} seconds.")
+                raise e
+            logger.info(f"Triton not ready, retrying in {interval_sec} sec...")
+            time.sleep(interval_sec)
+
+
 # Load sample MNIST images as inference input
 def generate_mnist_batch(batch_size=DATA_BATCH_SIZE):
     transform = transforms.Compose([
@@ -54,12 +74,8 @@ def generate_mnist_batch(batch_size=DATA_BATCH_SIZE):
 # Run inference using Triton gRPC client
 def main():
     try:
-        # Create gRPC client & # Check server status
-        client = grpcclient.InferenceServerClient(url=TRITON_SERVER_URL, verbose=False)
-        if not client.is_server_live():
-            raise Exception("Triton server is not live.")
 
-        logger.info("Connected to Triton server.")
+        client = connect_with_retry(TRITON_SERVER_URL, timeout_sec=300)
 
         # Check model metadata
         metadata = client.get_model_metadata(model_name=MODEL_NAME)
