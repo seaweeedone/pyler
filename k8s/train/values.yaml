@@ -1,0 +1,11 @@
+namespace: pyler-mlops
+
+pvc:
+  name: pyler-model-pvc
+  storage: 20Gi
+
+job:
+  name: job-train-model
+  image: train-model:pyler
+  exportDir: /models/resnet
+  modelMountPath: /models

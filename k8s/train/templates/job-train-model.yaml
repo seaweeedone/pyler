@@ -1,0 +1,47 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Values.job.name }}
+  namespace: {{ .Values.namespace }}
+#  annotations:
+#    "helm.sh/hook": post-install
+#    "helm.sh/hook-delete-policy": before-hook-creation
+spec:
+  template:
+    spec:
+      restartPolicy: OnFailure
+      initContainers:
+        - name: wait-for-pvc
+          image: busybox
+          command:
+            - sh
+            - -c
+            - |
+              timeout=300
+              elapsed=0
+              while [ ! -d /models ]; do
+                echo "Waiting for PVC to be mounted at /models... ($elapsed s)"
+                sleep 2
+                elapsed=$((elapsed + 2))
+                if [ "$elapsed" -ge "$timeout" ]; then
+                  echo "Timeout: PVC not mounted after $timeout seconds." >&2
+                  exit 1
+                fi
+              done
+              echo "PVC mounted, proceeding."
+          volumeMounts:
+            - name: model-base
+              mountPath: {{ .Values.job.modelMountPath }}
+      containers:
+        - name: trainer
+          image: {{ .Values.job.image }}
+          env:
+            - name: EXPORT_DIR
+              value: {{ .Values.job.exportDir }}
+          volumeMounts:
+            - name: model-base
+              mountPath: {{ .Values.job.modelMountPath }}
+      volumes:
+        - name: model-base
+          persistentVolumeClaim:
+            claimName: {{ .Values.pvc.name }}

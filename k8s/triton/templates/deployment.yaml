@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: triton-server
-  namespace: pyler-mlops
+  namespace: {{ .Values.namespace }}
 spec:
   replicas: 1
   selector:
@@ -15,23 +15,27 @@ spec:
     spec:
       containers:
         - name: triton
-          image: nvcr.io/nvidia/tritonserver:24.03-py3
-          args: ["tritonserver", "--model-repository=/models"]
+          image: {{ .Values.image.triton }}
+          args:
+            - "tritonserver"
+            - "--model-repository={{ .Values.model.repositoryPath }}"
+            - "--exit-on-error={{ .Values.triton.exitOnError }}"
+            - "--model-control-mode=poll"
           ports:
-            - containerPort: 8001  # gRPC
+            - containerPort: 8001
           volumeMounts:
             - name: model-base
-              mountPath: /models
+              mountPath: {{ .Values.model.repositoryPath }}
       volumes:
         - name: model-base
           persistentVolumeClaim:
-            claimName: triton-model-pvc
+            claimName: {{ .Values.pvc.name }}
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: triton-service
-  namespace: pyler-mlops
+  namespace: {{ .Values.namespace }}
 spec:
   selector:
     app: triton

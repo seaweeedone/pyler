@@ -1,0 +1,4 @@
+apiVersion: v2
+name: triton
+version: 0.1.0
+description: Triton Inference Server for ResNet18

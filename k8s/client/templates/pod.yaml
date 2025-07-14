@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: {{ .Values.client.name }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: triton-client
+spec:
+  restartPolicy: Never
+  containers:
+    - name: client
+      image: {{ .Values.client.image }}
+      imagePullPolicy: IfNotPresent
+      envFrom:
+        - configMapRef:
+            name: triton-client-env

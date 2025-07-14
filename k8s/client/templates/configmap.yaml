@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: triton-client-env
+  namespace: {{ .Values.namespace }}
+data:
+  CLUSTER_NAME: {{ .Values.triton.clusterName }}
+  TRITON_SERVICE_NS: {{ .Values.triton.serviceNamespace }}
+  TRITON_SERVICE_NAME: {{ .Values.triton.serviceName }}
+  TRITON_SERVICE_PORT: {{ .Values.triton.servicePort | quote }}

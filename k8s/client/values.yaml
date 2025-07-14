@@ -1,0 +1,11 @@
+namespace: pyler-mlops
+
+client:
+  name: triton-client
+  image: triton-client:pyler
+
+triton:
+  serviceName: triton-service
+  serviceNamespace: pyler-mlops
+  servicePort: "8001"
+  clusterName: cluster.local

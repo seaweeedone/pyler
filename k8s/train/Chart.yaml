@@ -1,0 +1,4 @@
+apiVersion: v2
+name: train
+version: 0.1.0
+description: Training Job for ResNet18 using MNIST

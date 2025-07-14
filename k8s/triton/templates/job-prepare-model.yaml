@@ -1,11 +1,15 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: prepare-model
-  namespace: pyler-mlops
+  name: {{ .Values.triton.prepareJobName }}
+  namespace: {{ .Values.namespace }}
+  annotations:
+    "helm.sh/hook": post-install
+    "helm.sh/hook-delete-policy": before-hook-creation
 spec:
   template:
     spec:
+      restartPolicy: OnFailure
       containers:
         - name: prepare
           image: busybox
@@ -13,9 +17,9 @@ spec:
             - sh
             - -c
             - |
-              mkdir -p /models/resnet/1 && \
-              mv /models/resnet/model.pt /models/resnet/1/model.pt && \
-              echo "$CONFIG_PBTXT" > /models/resnet/config.pbtxt
+              mkdir -p /models/{{ .Values.model.name }}/1 && \
+              mv /models/{{ .Values.model.name }}/model.pt /models/{{ .Values.model.name }}/1/model.pt && \
+              echo "$CONFIG_PBTXT" > /models/{{ .Values.model.name }}/config.pbtxt
           env:
             - name: CONFIG_PBTXT
               valueFrom:
@@ -25,8 +29,7 @@ spec:
           volumeMounts:
             - name: model-base
               mountPath: /models
-      restartPolicy: Never
       volumes:
         - name: model-base
           persistentVolumeClaim:
-            claimName: triton-model-pvc
+            claimName: {{ .Values.pvc.name }}
