@@ -14,6 +14,7 @@
 - **Kubernetes Server**: v1.33.1
 - **Kubernetes Client**: v1.30.2
 - **Container Runtime(Docker)**: v28.0.4
+- **Helm**: v3.18.3
 
 
 ## ⚙️ Minikube Cluster Setup
@@ -53,18 +54,35 @@ minikube start --driver=hyperv
 
 ### 6. Verify Cluster Status
 ```powershell
-#Check minkube status
+# Check minkube status
 minikube status
 
-#Check minikube versio
+# Check minikube versio
 minikube version
 
-#Check minikube IP
+# Check minikube IP
 minikube ip
 
-#Check pod list
+# Check pod list
 kubectl get po -A
 
-#Start minikube dashboard
+# Start minikube dashboard
 minikube dashboard
+```
+
+### 7. Install Helm
+```powershell
+# Install chocolatey(if not installed yet)
+Set-ExecutionPolicy Bypass -Scope Process -Force;
+[System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072;
+iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+
+# Install Helm : use --version option if you want specific version
+choco install kubernetes-helm -y
+
+# Check Helm version
+helm version
+
+# Check Helm list
+helm list -A
 ```
