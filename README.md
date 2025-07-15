@@ -18,6 +18,7 @@ pyler/
 │   ├── client.py
 │   ├── Dockerfile
 │   └── build_image.ps1  # Docker 이미지 빌드 스크립트
+│   └── build_image.sh   # Docker 이미지 빌드 스크립트
 ├── k8s/                 # 쿠버네티스 매니페스트 및 스크립트
 │   ├── client/          # 클라이언트 Pod 관련 리소스
 │   ├── train/           # 학습 Job 관련 리소스
@@ -29,6 +30,7 @@ pyler/
 │   ├── train.py
 │   ├── Dockerfile
 │   └── build_image.ps1  # Docker 이미지 빌드 스크립트
+│   └── build_image.sh   # Docker 이미지 빌드 스크립트 
 ├── INFRA.md             # Minikube 환경 설정 가이드
 └── README.md            # 프로젝트 설명 파일
 ```
