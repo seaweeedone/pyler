@@ -48,17 +48,19 @@ pyler/
 
 # 4. How to Run
 
-아래 단계들을 순서대로 실행하여 전체 워크플로우를 진행합니다.
-
-> 모델 학습 epoch 를 조정하고 싶은 경우 train/train.py 코드 내의 NUM_EPOCHS 변수를 설정하세요.
+> 모델 학습 epoch 의 기본 값은 5로 설정되어 있습니다. 
 >
-> NUM_EPOCHS 의 기본 값은 5로 설정되어 있습니다.
+> 이를 조정하고 싶은 경우 train/train.py 코드 내의 NUM_EPOCHS 변수를 수정하세요.
 > 
-> Helm Chart 내의 값을 변경하신 경우 settings.ps1 / settings.sh 파일에도 이를 반영해주시길 바랍니다.
-> 
-> 실행 스크립트는 Windows / Linux 로 나누어져있습니다.
+> 서비스 배포 및 도커 이미지 빌드 스크립트는 Windows / Linux 로 나누어져있습니다.
 > 
 > Windows PowerShell 을 사용하는 환경에서는 .ps1 파일을, WLS 혹은 Linux 환경의 경우 .sh 파일을 실행하세요.
+> 
+> Helm Chart 내의 값을 변경하신 경우 settings.ps1 / settings.sh 파일에도 이를 반영해주시길 바랍니다.
+
+
+
+아래 단계들을 순서대로 실행하여 전체 워크플로우를 진행합니다.
 
 ## Step 0: Create Namespace and Build Docker Images
 
@@ -123,9 +125,9 @@ cd k8s/scripts/linux
 
 ## Step 3: Deploy Triton Inference Server via Helm Chart
 
-학습이 완료되면, Triton 서버 Helm Chart를 배포하여 모델을 서비스합니다. 
+학습이 완료되면, Triton 서버를 배포 스크립트를 실행하여 모델을 서비스합니다. 
 
-이 스크립트는 `k8s/triton` Helm Chart를 배포하며 Triton이 모델을 인식할 수 있도록 모델 저장소 구조를 준비하는 Job을 실행한 뒤, Triton Deployment와 Service를 생성합니다.
+이 스크립트는 `k8s/triton` Helm Chart를 배포하며 Triton이 모델을 인식할 수 있도록 모델 저장소 구조를 설정하는 Job을 실행한 뒤, Triton Deployment와 Service를 생성합니다.
 
 ```shell
 # For Windows user
