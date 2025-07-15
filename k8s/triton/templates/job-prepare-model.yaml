@@ -5,30 +5,30 @@ metadata:
   namespace: {{ .Values.namespace }}
   annotations:
     "helm.sh/hook": post-install
-    "helm.sh/hook-delete-policy": hook-succeeded,hook-failed,before-hook-creation
+    "helm.sh/hook-delete-policy": hook-succeeded,before-hook-creation
 spec:
   template:
     spec:
       restartPolicy: OnFailure
       containers:
-        - name: prepare
+        - name: prepare-model
           image: busybox
           command:
             - sh
             - -c
             - |
-              mkdir -p /models/{{ .Values.model.name }}/1 && \
-              mv /models/{{ .Values.model.name }}/model.pt /models/{{ .Values.model.name }}/1/model.pt && \
-              echo "$CONFIG_PBTXT" > /models/{{ .Values.model.name }}/config.pbtxt
+              mkdir -p {{ .Values.modelResnet.repositoryPath }}/{{ .Values.modelResnet.name }}/{{ .Values.modelResnet.version }} && \
+              mv {{ .Values.modelResnet.repositoryPath }}/{{ .Values.modelResnet.name }}/model.pt {{ .Values.modelResnet.repositoryPath }}/{{ .Values.modelResnet.name }}/{{ .Values.modelResnet.version }}/model.pt &&
+              echo "$CONFIG_PBTXT" > {{ .Values.modelResnet.repositoryPath }}/{{ .Values.modelResnet.name }}/config.pbtxt
           env:
             - name: CONFIG_PBTXT
               valueFrom:
                 configMapKeyRef:
-                  name: triton-config
+                  name: resnet-config
                   key: config.pbtxt
           volumeMounts:
             - name: model-base
-              mountPath: /models
+              mountPath: {{ .Values.modelResnet.repositoryPath }}
       volumes:
         - name: model-base
           persistentVolumeClaim:

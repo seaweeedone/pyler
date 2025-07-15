@@ -18,14 +18,14 @@ spec:
           image: {{ .Values.image.triton }}
           args:
             - "tritonserver"
-            - "--model-repository={{ .Values.model.repositoryPath }}"
+            - "--model-repository={{ .Values.modelResnet.repositoryPath }}"
             - "--exit-on-error={{ .Values.triton.exitOnError }}"
             - "--model-control-mode=poll"
           ports:
             - containerPort: 8001
           volumeMounts:
             - name: model-base
-              mountPath: {{ .Values.model.repositoryPath }}
+              mountPath: {{ .Values.modelResnet.repositoryPath }}
       volumes:
         - name: model-base
           persistentVolumeClaim:
